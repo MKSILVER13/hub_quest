@@ -161,6 +161,7 @@ The program outputs:
    - Better local optima avoidance
    - Improved path merging strategy
    - Dynamic parameter adjustment
+   - All houses are not visited - need to integrate findOptimalPairPath function which exists but is not yet integrated into the main path finding logic
 
 2. **Performance Enhancements**
    - Memory usage optimization
