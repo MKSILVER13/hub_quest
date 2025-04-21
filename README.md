@@ -1,4 +1,4 @@
-# Delivery Route Optimization
+# Delivery Route Optimization [WORK IN PROGRESS]
 
 ## Overview
 This project implements an optimized delivery routing system that finds efficient paths for delivering packages to houses through their respective hubs while managing fuel costs and station refueling constraints.
@@ -74,6 +74,37 @@ The system solves a complex routing problem with the following constraints:
    - Handles overlapping segments efficiently
    - Maintains path validity
 
+## Optimization Value (opti_value) Details
+The system uses a custom optimization value to evaluate and compare paths. The opti_value is calculated as follows:
+
+### Calculation Formula:
+```cpp
+if (delivered > x) {
+    opti_value = fuel_cost * (visited_hubs/delivered_houses + 1)
+} else {
+    opti_value = fuel_cost / visited_hubs
+}
+```
+
+Where:
+- delivered: Number of houses delivered
+- x: Threshold parameter (default: 10)
+- fuel_cost: Total fuel cost of the path
+- visited_hubs: Number of hubs visited
+- delivered_houses: Number of houses delivered
+
+### Key Properties:
+1. Lower opti_value indicates a better path
+2. Balances between:
+   - Maximizing house deliveries
+   - Minimizing fuel costs
+   - Optimizing hub visits
+
+### Current Limitations:
+- May not find globally optimal solution
+- Sensitive to parameter x
+- Can be trapped in local optima
+
 ## Usage
 
 ### Compilation
@@ -116,3 +147,36 @@ The program outputs:
 3. Optimize memory usage for large networks
 4. Add support for time window constraints
 5. Implement real-time path updates
+
+## Project Status: Work in Progress
+
+### Completed Features:
+- Basic path finding implementation
+- Fuel constraint management
+- Hub-based delivery tracking
+- Path merging logic
+
+### Pending Improvements:
+1. **Algorithm Optimization**
+   - Better local optima avoidance
+   - Improved path merging strategy
+   - Dynamic parameter adjustment
+
+2. **Performance Enhancements**
+   - Memory usage optimization
+   - Computation speed improvements
+   - Better scaling for large graphs
+
+3. **Additional Features Needed**
+   - Multiple vehicle support
+   - Time window constraints
+   - Dynamic cost updates
+   - Real-time path recalculation
+
+4. **Code Quality**
+   - More comprehensive testing
+   - Better error handling
+   - Code documentation
+   - Performance profiling
+
+Please note that this is an active development project and the implementation is not yet complete. Contributions and suggestions are welcome.
