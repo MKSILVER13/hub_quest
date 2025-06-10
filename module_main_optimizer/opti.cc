@@ -699,7 +699,7 @@ int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(NULL);
   
-    if (freopen("../project_general_inputs/input_2.txt", "r", stdin) == NULL) {
+    if (freopen("../project_general_inputs/input.txt", "r", stdin) == NULL) {
         perror("Error opening input file: ../project_general_inputs/input.txt");
         return 1;
     }
