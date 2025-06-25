@@ -1,6 +1,11 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
+
+#define INT_MAX  2147483647 // Define INT_MAX for compatibility
+
+
 // Global variables for storing input
 int N, T, M, K, F;  // Removed X from global variables as it will be passed as parameter
 vector<vector<pair<int, int>>> adj; // adjacency list: {node, fuel_cost}
@@ -28,24 +33,6 @@ struct State {
 
 };
 
-// Structure for simplified brute force approach
-struct BruteState {
-    vector<int> path;
-    array<int, 3> fuel_costs; // {total, initial, last}
-    double opti_value;
-    bool has_fuel_station = false; // Flag to check if path has a fuel station
-
-    BruteState() : fuel_costs({INT_MAX, INT_MAX, INT_MAX}), opti_value(INT_MAX) {}
-};
-
-// Update PairPath struct to include starting fuel station
-struct PairPath {
-    vector<int> path;
-    int totalFuel;
-    int startFs;  // Starting fuel station index
-    
-    PairPath() : totalFuel(INT_MAX), startFs(-1) {}
-};
 
 // Structure to track a complete path attempt
 struct PathAttempt {
@@ -63,9 +50,8 @@ struct PathAttempt {
     }
 };
 
-vector<vector<State>> dp;
-vector<vector<BruteState>> dpbrute;
-vector<PairPath> brutePairs;  // Store optimal paths for each hub-house pair
+
+vector<vector<State>> dp; // dp[i][j] holds the best path from i to j
 map<int, int> nodeType; // 1: fuel station, 2: hub, 3: house
 map<int, int> hubToHouse; // maps hub to its corresponding house
 map<int, int> houseToHub; // maps house to its corresponding hub
@@ -82,17 +68,35 @@ double calculateOptiValue(const State& state, int x) {
     int delivered = state.delivered_houses_count;
     int visited = state.visited_hubs_count;
     int cost = state.fuel_costs[0] + state.fuel_costs[1] + state.fuel_costs[2];
+
+
+    // THIRD BEST OPTIMIZATION VALUE
+    // return state.fuel_costs[0];    
+    bool large_fuel = (state.fuel_costs[0] > F || state.fuel_costs[1] > F/5 || state.fuel_costs[2] > F/5);
+
+
+    // BEST OPTIMIZATION VALUE
+    return state.fuel_costs[0]+(large_fuel ? F : 0);
+
+
+    // SECOND BEST OPTIMIZATION VALUE
+    // return state.fuel_costs[0] + max(state.fuel_costs[1], state.fuel_costs[2])+(delivered+visited < N ?0:(visited < 3*N/4?state.fuel_costs[0]: 0));
+
+
     std::set<int> unique_nodes(state.path.begin(), state.path.end());
     int revisit_penalty = state.path.size() - unique_nodes.size(); // Penalize revisits
 
-    if (delivered > x) {
-        return cost * (double(visited) / delivered) + revisit_penalty * 10;
-    } else if (visited > 0) {
-        return double(cost) / visited + revisit_penalty * 10;
-    } else {
-        return cost + revisit_penalty * 10; // Penalize revisits heavily
-    }
+
+    // WORST OPTIMIZATION VALUE
+    // if (delivered > x) {
+    //     return cost * (double(visited) / delivered) + revisit_penalty * 10;
+    // } else if (visited > 0) {
+    //     return double(cost) / visited + revisit_penalty * 10;
+    // } else {
+    //     return cost + revisit_penalty * 10;
+    // }
 }
+
 
 // Helper function to update delivered and undelivered houses
 void updateDeliveryStatus(State& result, const State& a, const State& b) {
@@ -249,6 +253,15 @@ void initializeFloydWarshall(int x) {
                     dp[i][v].visited_hubs_count++;
                 }
             }
+            if(nodeType[i] == 3) { // if it's a house
+                auto it = std::find(houses.begin(), houses.end(), i);
+                if (it != houses.end()) {
+                    int idx = std::distance(houses.begin(), it);
+                    dp[i][v].undelivered_houses[idx] = 1;
+                    dp[i][v].list_undelivered_houses.push_back(idx);
+                    dp[i][v].undelivered_houses_count = 1;
+                }
+            }
             if(nodeType[v] == 2) {
                 auto it = std::find(hubs.begin(), hubs.end(), v);
                 if (it != hubs.end()) {
@@ -265,13 +278,7 @@ void initializeFloydWarshall(int x) {
                 if (it != houses.end()) {
                     int idx = std::distance(houses.begin(), it);
                     int hub_node = houseToHub[v];
-                    auto hub_it = std::find(hubs.begin(), hubs.end(), hub_node);
-                    bool delivered = false;
-                    if (hub_it != hubs.end()) {
-                        int hub_idx = std::distance(hubs.begin(), hub_it);
-                        if (dp[i][v].visited_hubs[hub_idx]) delivered = true;
-                    }
-                    if (delivered) {
+                    if (i == hub_node) {
                         dp[i][v].delivered_houses[idx] = 1;
                         dp[i][v].list_delivered_houses.push_back(idx);
                         dp[i][v].delivered_houses_count++;
@@ -290,89 +297,6 @@ void initializeFloydWarshall(int x) {
         for(int i = 0; i < T; i++) {
             for(int j = 0; j < T; j++) {
                 dp[i][j] = floydUpdate(dp[i][j], dp[i][k], dp[k][j], x);
-            }
-        }
-    }
-}
-
-// Helper function for merging BruteStates
-BruteState mergeBruteStates(const BruteState& a, const BruteState& b) {
-    BruteState result;
-    const int INF = INT_MAX;
-    
-    // Check if connecting paths exceeds fuel capacity
-    if (a.fuel_costs[2] + b.fuel_costs[1] > F) {
-        result.fuel_costs = {INF, INF, INF};
-        result.opti_value = INF;
-        return result;
-    }
-    
-    // Merge paths
-    result.path = a.path;
-    if(!b.path.empty()) {
-        result.path.insert(result.path.end(), b.path.begin() + 1, b.path.end());
-    }
-    
-    // Update fuel costs
-    result.fuel_costs = {
-        a.fuel_costs[0] + b.fuel_costs[0],  // total cost
-        (a.has_fuel_station?a.fuel_costs[1]:a.fuel_costs[0]+b.fuel_costs[1]),                    // initial cost remains from first path
-        (b.has_fuel_station?b.fuel_costs[2]:a.fuel_costs[2]+b.fuel_costs[0])                    // last cost comes from second path
-    };
-    result.has_fuel_station = a.has_fuel_station || b.has_fuel_station;
-    // Set optimization value to total fuel cost
-    result.opti_value = result.fuel_costs[0];
-    
-    return result;
-}
-
-// Helper function for Floyd-Warshall for brute approach
-BruteState bruteFloydUpdate(const BruteState& ij, const BruteState& ik, const BruteState& kj) {
-    // If either path doesn't exist, return ij
-    if (ik.fuel_costs[0] == INT_MAX || kj.fuel_costs[0] == INT_MAX)
-        return ij;
-    
-    BruteState merged = mergeBruteStates(ik, kj);
-    
-    // Return path with minimum total fuel cost
-    return (merged.opti_value < ij.opti_value) ? merged : ij;
-}
-
-void initializeBruteFloydWarshall() {
-    const int INF = INT_MAX;
-    // Initialize dpbrute matrix
-    dpbrute.resize(T, vector<BruteState>(T));
-    
-    // Initialize with direct edges
-    for(int i = 0; i < T; i++) {
-        // Path to self
-        dpbrute[i][i].path = {i};
-        dpbrute[i][i].fuel_costs = {0, 0, 0};
-        dpbrute[i][i].opti_value = 0;
-        dpbrute[i][i].has_fuel_station = isFuelStation(i);
-        
-        for(int j = 0; j < adj[i].size(); j++) {
-            pair<int, int> edge = adj[i][j];
-            int v = edge.first;
-            int cost = edge.second;
-            
-            // Calculate fuel costs based on whether nodes are fuel stations
-            int firstCost = isFuelStation(i) ? 0 : cost;
-            int lastCost = isFuelStation(v) ? 0 : cost;
-            
-            // Initialize path and costs
-            dpbrute[i][v].path = {i, v};
-            dpbrute[i][v].fuel_costs = {cost, firstCost, lastCost};
-            dpbrute[i][v].opti_value = cost;
-            dpbrute[i][v].has_fuel_station = isFuelStation(i) || isFuelStation(v);
-        }
-    }
-    
-    // Floyd-Warshall algorithm
-    for(int k = 0; k < T; k++) {
-        for(int i = 0; i < T; i++) {
-            for(int j = 0; j < T; j++) {
-                dpbrute[i][j] = bruteFloydUpdate(dpbrute[i][j], dpbrute[i][k], dpbrute[k][j]);
             }
         }
     }
@@ -524,8 +448,9 @@ State findOptimalPath(int x, int y) {
     int step = 1;
 
     while (!exploration_stack.empty() && backtrack_triggers <= y) {
-        if(chrono::high_resolution_clock::now() - start > chrono::minutes(10)) {
+        if(chrono::high_resolution_clock::now() - start > chrono::minutes(9)) {
             cout << "Time limit exceeded. Stopping exploration.\n";
+            // return best_path_found;
         }
         PathAttempt current_attempt = exploration_stack.top();
         exploration_stack.pop();
@@ -549,33 +474,56 @@ State findOptimalPath(int x, int y) {
 
         if (current_attempt.covered_houses.size() == n_houses) {
             cout << "All houses covered! Continuing to check other paths...\n";
-            continue;
+            return best_path_found;
         }
 
         int curr_j = current_attempt.sequence.back();
+        bool fuel_found_improvement = false;
         bool found_improvement = false;
+        bool hub_found_improvement = false;
         vector<pair<int, State>> possible_next_states;
+        vector<pair<int, State>> hub_possible_next_states;
+        vector<pair<int, State>> fuel_possible_next_states;
 
         // Find possible next moves
         for (int k = 0; k < T; k++) {
             if (dp[curr_j][k].fuel_costs[0] == INT_MAX) continue;
 
             State potential_next_state = mergeStates(current_attempt.current_state, dp[curr_j][k], x);
-            if (potential_next_state.fuel_costs[0] == INT_MAX) continue;
-
-            bool delivers_new = false;
-            for (int idx : potential_next_state.list_delivered_houses) {
-                if (current_attempt.covered_houses.find(houses[idx]) == current_attempt.covered_houses.end()) {
-                    delivers_new = true;
-                    break;
-                }
+            if(curr_j == 46){
+                cout << "Potential next state fuel costs: " << potential_next_state.fuel_costs[0] << ", "
+                     << potential_next_state.fuel_costs[1] << ", " << potential_next_state.fuel_costs[2] << "\n";
             }
-
+            if (potential_next_state.fuel_costs[0] == INT_MAX) continue;
+            
+            bool fuel_delivers_new = false;
+            bool delivers_new = false;
+            bool hub_delivers_new = false;
+            // cout << "Potential next state delivers " << potential_next_state.delivered_houses_count << "\n";
+            if(potential_next_state.delivered_houses_count > current_attempt.current_state.delivered_houses_count) {
+                delivers_new = true;
+            }
+            // cout << "Potential next state visits " << potential_next_state.visited_hubs_count << " hubs==============\n";
+            if(potential_next_state.visited_hubs_count > current_attempt.current_state.visited_hubs_count) {
+                hub_delivers_new = true;
+            }
+            if(isFuelStation(potential_next_state.path.back())) {
+                fuel_delivers_new = true;
+            }
+            if(hub_delivers_new) {
+                hub_possible_next_states.push_back({k, potential_next_state});
+                hub_found_improvement = true;
+            }
             if (delivers_new) {
                 possible_next_states.push_back({k, potential_next_state});
                 found_improvement = true;
             }
+            if (fuel_delivers_new) {
+                fuel_possible_next_states.push_back({k, potential_next_state});
+                fuel_found_improvement = true;
+            }
         }
+
         sort(possible_next_states.begin(), possible_next_states.end(),
              [x](const pair<int, State>& a, const pair<int, State>& b) {
                  int a_value = a.second.delivered_houses_count > x ? 
@@ -584,9 +532,27 @@ State findOptimalPath(int x, int y) {
                  int b_value = b.second.delivered_houses_count > x ? 
                                b.second.delivered_houses_count : 
                                b.second.visited_hubs_count;
-                 return a_value > b_value;
+                 return a_value < b_value;
              });
+        sort(hub_possible_next_states.begin(), hub_possible_next_states.end(),
+             [x](const pair<int, State>& a, const pair<int, State>& b) {
+                 int a_value = a.second.visited_hubs_count > x ? 
+                               a.second.visited_hubs_count : 
+                               a.second.delivered_houses_count;
+                 int b_value = b.second.visited_hubs_count > x ? 
+                               b.second.visited_hubs_count : 
+                               b.second.delivered_houses_count;
+                 return a_value < b_value;
+             });
+        sort(fuel_possible_next_states.begin(), fuel_possible_next_states.end(),
+             [x](const pair<int, State>& a, const pair<int, State>& b) {
+                 int a_value = a.second.fuel_costs[0];
+                 int b_value = b.second.fuel_costs[0];
+                 return a_value < b_value;
+             });
+        int i = 2;
         if (found_improvement) {
+            
             cout << "Found " << possible_next_states.size() << " possible improvements.\n";
             for(auto& move : possible_next_states) {
                 int next_k = move.first;
@@ -601,8 +567,43 @@ State findOptimalPath(int x, int y) {
                 }
 
                 exploration_stack.push(next_attempt);
+                if(--i == 0) break;
             }
-        } else {
+        } else if(hub_found_improvement){
+            cout << "Found " << hub_possible_next_states.size() << " possible hub improvements.\n";
+            for(auto& move : hub_possible_next_states) {
+                int next_k = move.first;
+                State next_state = move.second;
+
+                PathAttempt next_attempt = current_attempt;
+                next_attempt.current_state = next_state;
+                next_attempt.sequence.push_back(next_k);
+                next_attempt.covered_houses.clear();
+                for (int idx : next_state.list_delivered_houses) {
+                    next_attempt.covered_houses.insert(houses[idx]);
+                }
+
+                exploration_stack.push(next_attempt);
+                if(--i == 0) break;
+            }
+        }else if(fuel_found_improvement) {
+            cout << "Found " << fuel_possible_next_states.size() << " possible fuel improvements.\n";
+            for(auto& move : fuel_possible_next_states) {
+                int next_k = move.first;
+                State next_state = move.second;
+
+                PathAttempt next_attempt = current_attempt;
+                next_attempt.current_state = next_state;
+                next_attempt.sequence.push_back(next_k);
+                next_attempt.covered_houses.clear();
+                for (int idx : next_state.list_delivered_houses) {
+                    next_attempt.covered_houses.insert(houses[idx]);
+                }
+
+                exploration_stack.push(next_attempt);
+                if(--i == 0) break;
+            }
+        }else {
             backtrack_triggers++;
             cout << "Dead end reached. Backtrack trigger " << backtrack_triggers << "/" << y << "\n";
         }
@@ -617,89 +618,11 @@ State findOptimalPath(int x, int y) {
     return best_path_found;
 }
 
-// Modified function to return a vector of K best paths, one for each starting fuel station
-pair<vector<PairPath>, vector<PairPath>> findOptimalPairPath(int hub, int house) {
-    vector<PairPath> bestPaths(K);
-    vector<PairPath> lonelypairs(K);
-    
-    // Initialize both path vectors with correct starting fuel station index and INT_MAX cost
-    for(int start = 0; start < K; start++) {
-        bestPaths[start].startFs = fuelStations[start];
-        bestPaths[start].totalFuel = INT_MAX;
-        lonelypairs[start].startFs = fuelStations[start];
-        lonelypairs[start].totalFuel = INT_MAX;
-    }
-    
-    // First calculate direct paths (fuel station -> house -> same fuel station)
-    for(int start = 0; start < K; start++) {
-        int fs = fuelStations[start];
-        BruteState toHouse = dpbrute[fs][house];    // fs to house
-        BruteState fromHouse = dpbrute[house][fs];   // house back to fs
-        
-        // Check if path exists and meets fuel constraints
-        if(toHouse.fuel_costs[0] != INT_MAX && fromHouse.fuel_costs[0] != INT_MAX) {
-            if(toHouse.fuel_costs[2] + fromHouse.fuel_costs[1] <= F) {
-                int totalFuel = toHouse.fuel_costs[0] + fromHouse.fuel_costs[0];
-                if(totalFuel < lonelypairs[start].totalFuel) {
-                    vector<int> fullPath = toHouse.path;
-                    fullPath.insert(fullPath.end(), fromHouse.path.begin() + 1, fromHouse.path.end());
-                    
-                    lonelypairs[start].path = fullPath;
-                    lonelypairs[start].totalFuel = totalFuel;
-                }
-            }
-        }
-    }
-    
-    // Then calculate paths that visit the hub
-    for(int start = 0; start < K; start++) {
-        int fs1 = fuelStations[start];
-        
-        // Try all possible intermediate fuel stations
-        for(int mid = 0; mid < K; mid++) {
-            int fs2 = fuelStations[mid];
-            
-            // Get path segments for pattern: fs1-hub-fs2-house-fs1
-            BruteState path1 = dpbrute[fs1][hub];      // fs1 to hub
-            BruteState path2 = dpbrute[hub][fs2];      // hub to fs2
-            BruteState path3 = dpbrute[fs2][house];    // fs2 to house
-            BruteState path4 = dpbrute[house][fs1];    // house back to fs1
-            
-            // Skip if any segment is invalid
-            if(path1.fuel_costs[0] == INT_MAX || path2.fuel_costs[0] == INT_MAX || 
-               path3.fuel_costs[0] == INT_MAX || path4.fuel_costs[0] == INT_MAX)
-                continue;
-            
-            // Check fuel constraints between consecutive segments
-            if(path1.fuel_costs[2] + path2.fuel_costs[1] > F) continue;  // fs1->hub->fs2
-            if(path2.fuel_costs[2] + path3.fuel_costs[1] > F) continue;  // hub->fs2->house
-            if(path3.fuel_costs[2] + path4.fuel_costs[1] > F) continue;  // fs2->house->fs1
-            
-            // Calculate total fuel cost
-            int totalFuel = path1.fuel_costs[0] + path2.fuel_costs[0] + 
-                           path3.fuel_costs[0] + path4.fuel_costs[0];
-            
-            // Update if better than current best for this starting fuel station
-            if(totalFuel < bestPaths[start].totalFuel) {
-                vector<int> fullPath = path1.path;
-                fullPath.insert(fullPath.end(), path2.path.begin() + 1, path2.path.end());
-                fullPath.insert(fullPath.end(), path3.path.begin() + 1, path3.path.end());
-                fullPath.insert(fullPath.end(), path4.path.begin() + 1, path4.path.end());
-                
-                bestPaths[start].path = fullPath;
-                bestPaths[start].totalFuel = totalFuel;
-            }
-        }
-    }
-    
-    return {bestPaths, lonelypairs};
-}
-
 int main() {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(NULL);
   
-    if (freopen("../project_general_inputs/input.txt", "r", stdin) == NULL) {
+    if (freopen("../project_general_inputs/input_2.txt", "r", stdin) == NULL) {
         perror("Error opening input file: ../project_general_inputs/input.txt");
         return 1;
     }
@@ -711,9 +634,9 @@ int main() {
     }
     
     takeInput();
-    int z = 2;
-    int x = 2;
-    int y = 5;  
+    int z = N/2;
+    int x = N/2;
+    int y = (M/T < 10 ? 10: M/T);  
     
     initializeFloydWarshall(x);
     for(int i = 0; i < T; i++) {
@@ -723,12 +646,13 @@ int main() {
             cout << ", Fuel Costs: " << dp[i][j].fuel_costs[0] << ", " 
                  << dp[i][j].fuel_costs[1] << ", " << dp[i][j].fuel_costs[2] 
                  << ", Opti Value: " << dp[i][j].opti_value
-                << ", visited Hubs: ";
-            for(int hub : dp[i][j].visited_hubs) cout << hub << " ";
-                cout << "\n";
+                << ", visited houses: ";
+            for(int house : dp[i][j].list_delivered_houses) cout << house << " ";
+            cout << ", unvisited houses: ";
+            for(int house : dp[i][j].list_undelivered_houses) cout << house << " ";
+            cout << "\n";
         }
     }
-    // initializeBruteFloydWarshall();
     
     State final_path = findOptimalPath(z, y);
     
@@ -755,5 +679,6 @@ int main() {
     cout << "Time taken: " 
          << chrono::duration_cast<chrono::seconds>(chrono::high_resolution_clock::now() - start).count() 
          << " s\n";
+    cout << "Visited hubs: " << final_path.visited_hubs_count << "/" << hubs.size() << "\n";
     return 0;
 }

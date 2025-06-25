@@ -29,14 +29,30 @@ This project has been organized into the following descriptive directory structu
   - `README.md` - Overall project documentation
   - `DIRECTORY_GUIDE.md` - This file, explaining the directory structure
 
-## Usage
+## Usage & I/O Paths
 
-- Source files are located within their respective `module_*` directories.
-- Compiled executables are in the `executables_bin/` directory.
-- General input files are in `project_general_inputs/`.
-- Module-specific inputs and outputs are within their `module_*` directories.
+Updated commands and file references:
 
-### Building Code
+- **Main Optimizer (`opti.cc`):**
+  - Reads from `project_general_inputs/input_2.txt` by default; edit `freopen` to change.
+  - Writes to `module_main_optimizer/output.txt` by default.
+  ```cpp
+  freopen("project_general_inputs/input_2.txt","r",stdin);
+  freopen("module_main_optimizer/output.txt","w",stdout);
+  ```
+
+- **OptiValue Calculator (`calculate_opti_value.cc`):**
+  - Redirects `stdout` to `module_opti_value_calculator/analysis_output.txt`.
+  - Loads graph from `module_opti_value_calculator/graph_input.txt` and paths from `module_opti_value_calculator/paths_input.txt`.
+  ```cpp
+  freopen("module_opti_value_calculator/analysis_output.txt","w",stdout);
+  readGraph("module_opti_value_calculator/graph_input.txt");
+  std::ifstream paths_file("module_opti_value_calculator/paths_input.txt");
+  ```
+
+*Ensure these paths match your project structure when building or moving files.*
+
+## Building Code
 
 ```powershell
 # To build the OptiValue calculator:
