@@ -3,25 +3,25 @@ Path: 0 2 4 6 8
 Visited Hubs: 4, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 11, 0, 11
 Revisit Penalty: 0
-OptiValue: 5.5
+OptiValue: 16
 
 Path: 0 1 2 11 3 
 Visited Hubs: 1, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 11, 0, 11
 Revisit Penalty: 0
-OptiValue: 22
+OptiValue: 16
 
 Path: 0 1 2 4 5 4 6 
 Visited Hubs: 3, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 22, 0, 22
 Revisit Penalty: 1
-OptiValue: 24.6667
+OptiValue: 27
 
 Path: 0 1 3 1 3 2 10 2 
 Visited Hubs: 1, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 0, 0, 0
 Revisit Penalty: 3
-OptiValue: 30
+OptiValue: 0
 
 Path: 0 10 2 11 4 12 
 Visited Hubs: 2, Delivered Houses: 0
@@ -33,32 +33,32 @@ Path: 0 1 2 1 2 3 10 2 11
 Visited Hubs: 1, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 0, 0, 0
 Revisit Penalty: 3
-OptiValue: 30
+OptiValue: 0
 
 === x = 1 ===
 Path: 0 2 4 6 8 
 Visited Hubs: 4, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 11, 0, 11
 Revisit Penalty: 0
-OptiValue: 5.5
+OptiValue: 16
 
 Path: 0 1 2 11 3 
 Visited Hubs: 1, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 11, 0, 11
 Revisit Penalty: 0
-OptiValue: 22
+OptiValue: 16
 
 Path: 0 1 2 4 5 4 6 
 Visited Hubs: 3, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 22, 0, 22
 Revisit Penalty: 1
-OptiValue: 24.6667
+OptiValue: 27
 
 Path: 0 1 3 1 3 2 10 2 
 Visited Hubs: 1, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 0, 0, 0
 Revisit Penalty: 3
-OptiValue: 30
+OptiValue: 0
 
 Path: 0 10 2 11 4 12 
 Visited Hubs: 2, Delivered Houses: 0
@@ -70,32 +70,32 @@ Path: 0 1 2 1 2 3 10 2 11
 Visited Hubs: 1, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 0, 0, 0
 Revisit Penalty: 3
-OptiValue: 30
+OptiValue: 0
 
 === x = 2 ===
 Path: 0 2 4 6 8 
 Visited Hubs: 4, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 11, 0, 11
 Revisit Penalty: 0
-OptiValue: 5.5
+OptiValue: 16
 
 Path: 0 1 2 11 3 
 Visited Hubs: 1, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 11, 0, 11
 Revisit Penalty: 0
-OptiValue: 22
+OptiValue: 16
 
 Path: 0 1 2 4 5 4 6 
 Visited Hubs: 3, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 22, 0, 22
 Revisit Penalty: 1
-OptiValue: 24.6667
+OptiValue: 27
 
 Path: 0 1 3 1 3 2 10 2 
 Visited Hubs: 1, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 0, 0, 0
 Revisit Penalty: 3
-OptiValue: 30
+OptiValue: 0
 
 Path: 0 10 2 11 4 12 
 Visited Hubs: 2, Delivered Houses: 0
@@ -107,32 +107,32 @@ Path: 0 1 2 1 2 3 10 2 11
 Visited Hubs: 1, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 0, 0, 0
 Revisit Penalty: 3
-OptiValue: 30
+OptiValue: 0
 
 === x = 3 ===
 Path: 0 2 4 6 8 
 Visited Hubs: 4, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 11, 0, 11
 Revisit Penalty: 0
-OptiValue: 5.5
+OptiValue: 16
 
 Path: 0 1 2 11 3 
 Visited Hubs: 1, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 11, 0, 11
 Revisit Penalty: 0
-OptiValue: 22
+OptiValue: 16
 
 Path: 0 1 2 4 5 4 6 
 Visited Hubs: 3, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 22, 0, 22
 Revisit Penalty: 1
-OptiValue: 24.6667
+OptiValue: 27
 
 Path: 0 1 3 1 3 2 10 2 
 Visited Hubs: 1, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 0, 0, 0
 Revisit Penalty: 3
-OptiValue: 30
+OptiValue: 0
 
 Path: 0 10 2 11 4 12 
 Visited Hubs: 2, Delivered Houses: 0
@@ -144,32 +144,32 @@ Path: 0 1 2 1 2 3 10 2 11
 Visited Hubs: 1, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 0, 0, 0
 Revisit Penalty: 3
-OptiValue: 30
+OptiValue: 0
 
 === x = 4 ===
 Path: 0 2 4 6 8 
 Visited Hubs: 4, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 11, 0, 11
 Revisit Penalty: 0
-OptiValue: 5.5
+OptiValue: 16
 
 Path: 0 1 2 11 3 
 Visited Hubs: 1, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 11, 0, 11
 Revisit Penalty: 0
-OptiValue: 22
+OptiValue: 16
 
 Path: 0 1 2 4 5 4 6 
 Visited Hubs: 3, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 22, 0, 22
 Revisit Penalty: 1
-OptiValue: 24.6667
+OptiValue: 27
 
 Path: 0 1 3 1 3 2 10 2 
 Visited Hubs: 1, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 0, 0, 0
 Revisit Penalty: 3
-OptiValue: 30
+OptiValue: 0
 
 Path: 0 10 2 11 4 12 
 Visited Hubs: 2, Delivered Houses: 0
@@ -181,32 +181,32 @@ Path: 0 1 2 1 2 3 10 2 11
 Visited Hubs: 1, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 0, 0, 0
 Revisit Penalty: 3
-OptiValue: 30
+OptiValue: 0
 
 === x = 5 ===
 Path: 0 2 4 6 8 
 Visited Hubs: 4, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 11, 0, 11
 Revisit Penalty: 0
-OptiValue: 5.5
+OptiValue: 16
 
 Path: 0 1 2 11 3 
 Visited Hubs: 1, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 11, 0, 11
 Revisit Penalty: 0
-OptiValue: 22
+OptiValue: 16
 
 Path: 0 1 2 4 5 4 6 
 Visited Hubs: 3, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 22, 0, 22
 Revisit Penalty: 1
-OptiValue: 24.6667
+OptiValue: 27
 
 Path: 0 1 3 1 3 2 10 2 
 Visited Hubs: 1, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 0, 0, 0
 Revisit Penalty: 3
-OptiValue: 30
+OptiValue: 0
 
 Path: 0 10 2 11 4 12 
 Visited Hubs: 2, Delivered Houses: 0
@@ -218,5 +218,5 @@ Path: 0 1 2 1 2 3 10 2 11
 Visited Hubs: 1, Delivered Houses: 0
 Fuel Costs (Total, Initial, Last): 0, 0, 0
 Revisit Penalty: 3
-OptiValue: 30
+OptiValue: 0
 

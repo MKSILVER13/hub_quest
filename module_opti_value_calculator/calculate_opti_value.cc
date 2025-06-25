@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-
+int N, T, M, K, F;
 struct State {
     vector<int> path;
     set<int> visited_hubs;
@@ -21,21 +21,34 @@ double calculateOptiValue(const State& state, int x) {
     int delivered = state.delivered_houses.size();
     int visited = state.visited_hubs.size();
     int cost = state.fuel_costs[0] + state.fuel_costs[1] + state.fuel_costs[2];
-    set<int> unique_nodes(state.path.begin(), state.path.end());
+
+    // THIRD BEST OPTIMIZATION VALUE: pure fuel cost
+    // return state.fuel_costs[0];
+
+    bool large_fuel = (state.fuel_costs[0] > F || state.fuel_costs[1] > F/5 || state.fuel_costs[2] > F/5);
+
+    // BEST OPTIMIZATION VALUE: fuel + full surcharge on large legs
+    return state.fuel_costs[0] + (large_fuel ? F : 0);
+
+    // SECOND BEST OPTIMIZATION VALUE: fuel + max segment cost + conditional penalty
+    // return state.fuel_costs[0] + max(state.fuel_costs[1], state.fuel_costs[2])
+    //        + ((delivered + visited < numHouses) ? 0 : (visited < 3*numHouses/4 ? state.fuel_costs[0] : 0));
+
+    std::set<int> unique_nodes(state.path.begin(), state.path.end());
     int revisit_penalty = state.path.size() - unique_nodes.size(); // Penalize revisits
 
-    if (delivered > x) {
-        return cost * (double(visited) / delivered) + revisit_penalty * 10;
-    } else if (visited > 0) {
-        return double(cost) / visited + revisit_penalty * 10;
-    } else {
-        return cost + revisit_penalty * 10; // Penalize revisits heavily
-    }
+    // WORST OPTIMIZATION VALUE: full heuristic with revisit penalty
+    // if (delivered > x) {
+    //     return cost * (double(visited) / delivered) + revisit_penalty * 10;
+    // } else if (visited > 0) {
+    //     return double(cost) / visited + revisit_penalty * 10;
+    // } else {
+    //     return cost + revisit_penalty * 10;
+    // }
 }
 
 void readGraph(const string& filename) {
     ifstream infile(filename);
-    int N, T, M, K, F;
     infile >> N >> T >> M >> K >> F;
 
     numHouses = N;  // store house count
